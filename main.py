@@ -78,7 +78,7 @@ print('Images loaded!')
 # print("Scaling!")
 # scaler = StandardScaler()
 # scaler.fit(train_images)
-# train_images_scaled = scaler.transform(train_images) multumesc cazacu
+# train_images_scaled = scaler.transform(train_images)
 
 
 print("Creating model!")
@@ -103,6 +103,7 @@ validation_loss, validation_acc = classifier.evaluate(validation_images, validat
 
 # print("Prediction score by mean: " + str(score_mean * 100) + "%")
 print("Prediction score: " + str(validation_acc * 100) + "%")
+
 
 # Save to file
 predictTestAndSave(classifier)

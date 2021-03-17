@@ -78,7 +78,7 @@ print('Images loaded!')
 # print("Scaling!")
 # scaler = StandardScaler()
 # scaler.fit(train_images)
-# train_images_scaled = scaler.transform(train_images)
+# train_images_scaled = scaler.transform(train_images) multumesc cazacu
 
 
 print("Creating model!")

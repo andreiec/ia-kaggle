@@ -27,12 +27,12 @@ def predictTestAndSave(classifier):
     for tst_image in test_images_names:
         tst_images.append(cv2.imread(test_path + tst_image, cv2.IMREAD_GRAYSCALE))
 
-    test_images = np.array(tst_images)
+    test_images = np.expand_dims(tst_images, axis=3)
     test_images = test_images / 255.0
 
     test_prediction = classifier.predict(test_images)
 
-    tst_file = open("submissions/" + test_name + "-" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + '.csv', 'w')
+    tst_file = open("submissions/" + test_name + "-" + datetime.datetime.now().strftime("%Y%m%d-%H%M") + '.csv', 'w')
     tst_file.write("id,label\n")
 
     for i in range(0, len(tst_images)):
@@ -47,9 +47,11 @@ os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
 print("Loading images..")
 
 train_labels = np.loadtxt('train_true_labels.txt', 'int').astype(int)
+# train_labels = np.loadtxt('train_true_labels_flipped.txt', 'int').astype(int)
 validation_labels = np.loadtxt('validation_true_labels.txt', 'int').astype(int)
 
 train_path = 'train/'
+# train_path = 'flipped/'
 validation_path = 'validation/'
 
 train_images_names = [f for f in os.listdir(train_path) if os.path.isfile(os.path.join(train_path, f))]
@@ -67,11 +69,12 @@ for v_image in validation_images_names:
 # train_images = np.array(t_images).reshape(-1, IMG_SIZE * IMG_SIZE)
 # validation_images = np.array(v_images).reshape(-1, IMG_SIZE * IMG_SIZE)
 
-train_images = np.array(t_images)
-validation_images = np.array(v_images)
+train_images = np.expand_dims(t_images, axis=3)
+validation_images = np.expand_dims(v_images, axis=3)
 
 train_images = train_images / 255.0
 validation_images = validation_images / 255.0
+
 
 print('Images loaded!')
 
@@ -84,16 +87,21 @@ print('Images loaded!')
 print("Creating model!")
 # classifier = SVC(C=1, kernel='poly', gamma='auto')
 classifier = keras.Sequential([
-    keras.layers.Flatten(input_shape=(32, 32)),
-    keras.layers.Dense(128, activation=tf.nn.relu),
-    keras.layers.Dense(9, activation=tf.nn.softmax)
+    keras.layers.Conv2D(32, (3, 3), input_shape=(32, 32, 1), activation='relu'),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    keras.layers.MaxPooling2D((2,2)),
+    keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    keras.layers.Flatten(),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(9, activation='softmax')
 ])
 
 classifier.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 print("Started training!")
 
-classifier.fit(train_images, train_labels, epochs=30)
+classifier.fit(train_images, train_labels, epochs=10)
 
 print("Predicting!")
 prediction = classifier.predict(validation_images)

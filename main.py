@@ -15,6 +15,14 @@ def accuracy_score(y_true, y_pred):
     return (y_true == y_pred).mean()
 
 
+# Learning Rate Scheduler
+def scheduler(epoch, lr):
+    if epoch < 10:
+        return lr
+    else:
+        return lr * np.exp(-1)
+
+
 def predictTestAndSave(classifier):
     print("Saving..")
 
@@ -86,14 +94,38 @@ print('Images loaded!')
 
 print("Creating model!")
 # classifier = SVC(C=1, kernel='poly', gamma='auto')
+
+# data_augmentation = keras.Sequential([
+#     keras.layers.experimental.preprocessing.RandomFlip("horizontal", input_shape=(32, 32, 1)),
+#     keras.layers.experimental.preprocessing.RandomRotation(0.1),
+#     keras.layers.experimental.preprocessing.RandomZoom(0.1)
+# ])
+
+# classifier = keras.Sequential([
+#     keras.layers.Conv2D(64, (3, 3), input_shape=(32, 32, 1), activation='relu'),
+#     keras.layers.MaxPooling2D((2, 2)),
+#     keras.layers.Conv2D(64, (3, 3), activation='relu'),
+#     keras.layers.MaxPooling2D((2, 2)),
+#     keras.layers.Conv2D(128, (3, 3), activation='relu'),
+#     keras.layers.Dropout(0.2),
+#     keras.layers.Flatten(),
+#     keras.layers.Dense(128, activation='relu'),
+#     keras.layers.Dense(9, activation='softmax')
+# ])
+
 classifier = keras.Sequential([
-    keras.layers.Conv2D(32, (3, 3), input_shape=(32, 32, 1), activation='relu'),
+    keras.layers.Conv2D(50, (7, 7), input_shape=(32, 32, 1), activation='relu'),
+    keras.layers.Conv2D(75, (3, 3), activation='relu'),
     keras.layers.MaxPooling2D((2, 2)),
-    keras.layers.Conv2D(64, (3, 3), activation='relu'),
-    keras.layers.MaxPooling2D((2,2)),
-    keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    keras.layers.Dropout(0.25),
+    keras.layers.Conv2D(125, (3, 3), activation='relu'),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Dropout(0.25),
     keras.layers.Flatten(),
-    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(500, activation='relu'),
+    keras.layers.Dropout(0.4),
+    keras.layers.Dense(250, activation='relu'),
+    keras.layers.Dropout(0.3),
     keras.layers.Dense(9, activation='softmax')
 ])
 
@@ -101,7 +133,8 @@ classifier.compile(optimizer='adam', loss='sparse_categorical_crossentropy', met
 
 print("Started training!")
 
-classifier.fit(train_images, train_labels, epochs=10)
+callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
+classifier.fit(train_images, train_labels, epochs=15, callbacks=[callback])
 
 print("Predicting!")
 prediction = classifier.predict(validation_images)

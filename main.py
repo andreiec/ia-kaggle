@@ -37,16 +37,6 @@ def scheduler(epoch, lr):
 #     return start_lr * (exp_decay ** epoch)
 
 
-def plot_hist(hist):
-    plt.plot(hist.history["accuracy"])
-    plt.plot(hist.history["val_accuracy"])
-    plt.title("model accuracy")
-    plt.ylabel("accuracy")
-    plt.xlabel("epoch")
-    plt.legend(["train", "validation"], loc="upper left")
-    plt.show()
-
-
 def predictTestAndSave(classifier):
     print("Saving..")
 
@@ -59,9 +49,9 @@ def predictTestAndSave(classifier):
     for tst_image in test_images_names:
         tst_images.append(cv2.imread(test_path + tst_image, cv2.IMREAD_GRAYSCALE))
 
-    # test_images = np.array(tst_images)
-    # test_images = np.repeat(test_images[:, :, :, np.newaxis], 3, -1)
-    test_images = np.expand_dims(tst_images, axis=3)
+    test_images = np.array(tst_images)
+    test_images = np.repeat(test_images[:, :, :, np.newaxis], 3, -1)
+    # test_images = np.expand_dims(tst_images, axis=3)
 
     test_images = test_images / 255.0
 
@@ -102,13 +92,13 @@ for v_image in validation_images_names:
     v_images.append(cv2.imread(validation_path + v_image, cv2.IMREAD_GRAYSCALE))
 
 
-# train_images = np.array(t_images)
-# validation_images = np.array(v_images)
-# train_images = np.repeat(train_images[:, :, :, np.newaxis], 3, -1)
-# validation_images = np.repeat(validation_images[:, :, :, np.newaxis], 3, -1)
+train_images = np.array(t_images)
+validation_images = np.array(v_images)
+train_images = np.repeat(train_images[:, :, :, np.newaxis], 3, -1)
+validation_images = np.repeat(validation_images[:, :, :, np.newaxis], 3, -1)
 
-train_images = np.expand_dims(t_images, axis=3)
-validation_images = np.expand_dims(v_images, axis=3)
+# train_images = np.expand_dims(t_images, axis=3)
+# validation_images = np.expand_dims(v_images, axis=3)
 
 train_images = train_images / 255.0
 validation_images = validation_images / 255.0
@@ -191,18 +181,18 @@ print("Creating model!")
 # ])
 
 # 0.8826%
-classifier = keras.Sequential([
-    keras.layers.Conv2D(20, (5, 5), input_shape=(32, 32, 1), activation='relu', padding='same'),
-    keras.layers.MaxPool2D(),
-    keras.layers.Dropout(0.25),
-    keras.layers.Conv2D(50, (5, 5), activation='relu', padding='same'),
-    keras.layers.MaxPool2D(),
-    keras.layers.Dropout(0.25),
-    keras.layers.Flatten(),
-    keras.layers.Dense(500, activation='relu'),
-    keras.layers.Dropout(0.4),
-    keras.layers.Dense(9, activation='softmax')
-])
+# classifier = keras.Sequential([
+#     keras.layers.Conv2D(20, (5, 5), input_shape=(32, 32, 1), activation='relu', padding='same'),
+#     keras.layers.MaxPool2D(),
+#     keras.layers.Dropout(0.25),
+#     keras.layers.Conv2D(50, (5, 5), activation='relu', padding='same'),
+#     keras.layers.MaxPool2D(),
+#     keras.layers.Dropout(0.25),
+#     keras.layers.Flatten(),
+#     keras.layers.Dense(500, activation='relu'),
+#     keras.layers.Dropout(0.4),
+#     keras.layers.Dense(9, activation='softmax')
+# ])
 
 
 # classifier = keras.Sequential([
@@ -281,32 +271,78 @@ datagen.fit(train_images)
 
 # LeNet-5
 # classifier = keras.models.Sequential([
-#     keras.layers.Conv2D(32, (3, 3), input_shape=(32, 32, 1), activation='relu'),
+#     keras.layers.Conv2D(6, (5, 5), input_shape=(32, 32, 1), activation='tanh'),
 #     keras.layers.AveragePooling2D((2, 2)),
-#     keras.layers.Conv2D(16, (3, 3), activation='relu'),
+#     keras.layers.Conv2D(16, (5, 5), activation='tanh'),
 #     keras.layers.AveragePooling2D((2, 2)),
 #     keras.layers.Flatten(),
-#     keras.layers.Dense(120, activation='relu'),
-#     keras.layers.Dense(84, activation='relu'),
+#     keras.layers.Dense(120, activation='tanh'),
+#     keras.layers.Dense(84, activation='tanh'),
 #     keras.layers.Dense(9, activation='softmax')
 # ])
 
-# LeNet-5 Improved
 # classifier = keras.models.Sequential([
-#     keras.layers.Conv2D(20, (5, 5), input_shape=(32, 32, 1), activation='relu', padding='same'),
-#     keras.layers.MaxPool2D(strides=2),
-#     keras.layers.Dropout(0.25),
-#     keras.layers.Conv2D(50, (5, 5), activation='relu', padding='valid'),
-#     keras.layers.MaxPool2D(strides=2),
-#     keras.layers.Dropout(0.25),
+#     keras.layers.Conv2D(6, (5, 5), input_shape=(32, 32, 1), activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     keras.layers.MaxPooling2D((2, 2)),
+#     keras.layers.Conv2D(12, (5, 5), activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     keras.layers.MaxPooling2D((2, 2)),
 #     keras.layers.Flatten(),
-#     keras.layers.Dense(512, activation='relu'),
-#     keras.layers.Dropout(0.4),
+#     keras.layers.Dense(320, activation='tanh'),
 #     keras.layers.Dense(9, activation='softmax')
 # ])
 
-classifier.build()
-classifier.compile(optimizer=keras.optimizers.Adam(lr=0.0005), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+# classifier = keras.Sequential()
+
+# classifier.add(keras.layers.Conv2D(20, (5, 5), input_shape=(32, 32, 1), padding='same'))
+# classifier.add(keras.layers.BatchNormalization())
+# classifier.add(keras.layers.Activation('relu'))
+# classifier.add(keras.layers.Dropout(0.2))
+#
+# classifier.add(keras.layers.MaxPooling2D((2, 2)))
+# classifier.add(keras.layers.BatchNormalization())
+#
+# classifier.add(keras.layers.Conv2D(50, (5, 5), padding='same'))
+# classifier.add(keras.layers.BatchNormalization())
+# classifier.add(keras.layers.Activation('relu'))
+# classifier.add(keras.layers.Dropout(0.2))
+#
+# classifier.add(keras.layers.MaxPooling2D((2, 2)))
+# classifier.add(keras.layers.BatchNormalization())
+#
+# classifier.add(keras.layers.Flatten())
+# classifier.add(keras.layers.Dense(500))
+# classifier.add(keras.layers.BatchNormalization())
+# classifier.add(keras.layers.Dense(9, activation='softmax'))
+
+# classifier = keras.Sequential([
+#     keras.layers.Conv2D(50, (5, 5), input_shape=(32, 32, 1), activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     keras.layers.Conv2D(75, (3, 3), activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     keras.layers.MaxPooling2D((2, 2)),
+#     keras.layers.Dropout(0.25),
+#     keras.layers.Conv2D(125, (3, 3), activation='relu'),
+#     keras.layers.MaxPooling2D((2, 2)),
+#     keras.layers.Dropout(0.25),
+#     keras.layers.Flatten(),
+#     keras.layers.Dense(500, activation='relu'),
+#     keras.layers.Dropout(0.4),
+#     keras.layers.Dense(250, activation='relu'),
+#     keras.layers.Dropout(0.3),
+#     keras.layers.Dense(9, activation='softmax')
+# ])
+
+base_model = keras.applications.resnet50.ResNet50(weights=None, include_top=False, input_shape=(32, 32, 3))
+x = base_model.output
+x = keras.layers.GlobalAveragePooling2D()(x)
+x = keras.layers.Dropout(0.7)(x)
+predictions = keras.layers.Dense(9, activation='softmax')(x)
+classifier = keras.Model(inputs=base_model.inputs, outputs=predictions)
+
+
+classifier.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss='sparse_categorical_crossentropy', metrics=['accuracy'])  # 0.0005
 
 
 reduce_lr = ReduceLROnPlateau(monitor='val_acc', patience=3, factor=0.2, min_lr=0.000001)
@@ -314,7 +350,7 @@ reduce_lr = ReduceLROnPlateau(monitor='val_acc', patience=3, factor=0.2, min_lr=
 print("Started training!")
 
 # callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-classifier.fit(train_images, train_labels, epochs=25, callbacks=[reduce_lr], validation_data=(validation_images, validation_labels), verbose=2)
+classifier.fit(train_images, train_labels, epochs=30, callbacks=[reduce_lr], validation_data=(validation_images, validation_labels), verbose=1, batch_size=32)
 # classifier.fit_generator(datagen.flow(train_images, train_labels, batch_size=1), steps_per_epoch=len(train_images) // 1, epochs=25, validation_data=(validation_images, validation_labels), callbacks=[reduce_lr])  # callbacks=[callback], BATCH_SIZE = 32
 # plot_hist(hist)
 
